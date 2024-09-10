@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AlunosAPI.Models;
+using AlunosAPI.Repositories;
+using Microsoft.AspNetCore.Mvc;
+using MySqlX.XDevAPI;
 
 
 namespace AlunosAPI.Controllers
@@ -7,36 +10,52 @@ namespace AlunosAPI.Controllers
     [ApiController]
     public class PessoaController : ControllerBase
     {
+
+        private readonly PessoaRepository _pessoaRepository;
+
+        public PessoaController(PessoaRepository pessoaRepository)
+        {
+            _pessoaRepository = pessoaRepository;
+        }
+
+
         // GET: api/<PessoaController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task <IEnumerable<Pessoa>> Listar()
         {
-            return new string[] { "value1", "value2" };
+            return await _pessoaRepository.ListarTodasPessoas();
         }
 
         // GET api/<PessoaController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public async Task<Pessoa> BuscarPorId(int id)
         {
-            return "value";
+            return await _pessoaRepository.BuscarPorId(id);
         }
 
         // POST api/<PessoaController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async void Post([FromBody] Pessoa dados)
         {
+            await _pessoaRepository.Salvar(dados);
         }
 
         // PUT api/<PessoaController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public async Task<IActionResult> Put(int id, [FromBody] Pessoa dados)
         {
+            dados.Id = id;
+            await _pessoaRepository.Atualizar(dados);
+            return Ok();
         }
 
         // DELETE api/<PessoaController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
+  
+                await _pessoaRepository.DeletarPorId(id);
+                  return Ok();
+            }
         }
-    }
 }
